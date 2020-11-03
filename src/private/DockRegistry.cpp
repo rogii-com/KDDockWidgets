@@ -96,9 +96,6 @@ void DockRegistry::onFocusObjectChanged(QObject *obj)
 
     if (unfocusedDW)
         Q_EMIT unfocusedDW->isFocusedChanged(false);
-
-    if (m_focusedDockWidget)
-        Q_EMIT m_focusedDockWidget->isFocusedChanged(true);
 }
 
 bool DockRegistry::isEmpty(bool excludeBeingDeleted) const

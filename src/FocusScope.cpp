@@ -18,6 +18,8 @@
 
 #include "FocusScope.h"
 #include "TitleBar_p.h"
+#include "Frame_p.h"
+#include "DockWidgetBase.h"
 
 #include <QObject>
 #include <QApplication>
@@ -45,6 +47,7 @@ public:
     void setIsFocused(bool);
     void onFocusObjectChanged(QObject *);
     bool isInFocusScope(WidgetType *) const;
+    void emitDockWidgetFocusChanged();
 
     FocusScope *const q;
     QWidgetAdapter *const m_thisWidget;
@@ -101,6 +104,9 @@ void FocusScope::Private::setIsFocused(bool is)
     if (is != m_isFocused) {
         m_isFocused = is;
 
+        if (is)
+            emitDockWidgetFocusChanged();
+
         if (!m_inCtor) // Hack so we don't call pure-virtual
             Q_EMIT q->isFocusedChanged();
     }
@@ -133,4 +139,35 @@ bool FocusScope::Private::isInFocusScope(WidgetType *widget) const
     }
 
     return false;
+}
+
+void FocusScope::Private::emitDockWidgetFocusChanged()
+{
+    auto p = qobject_cast<WidgetType*>(qApp->focusObject());
+    if (!p) return;
+
+    // Find the nearest DockWidget and send the focusChangedSignal
+
+    while (p) {
+
+        if (p == m_thisWidget)
+            break;
+
+        if (auto dw = qobject_cast<DockWidgetBase*>(p)) {
+            Q_EMIT dw->isFocusedChanged(true);
+            break;
+        }
+
+        if (auto frame = qobject_cast<Frame*>(p)) {
+            // Special case: The focused widget is inside the frame but not inside the dockwidget.
+            // For example, it's a line edit in the QTabBar. We still need to send the signal for
+            // the current dw in the tab group
+            if (auto dw = frame->currentDockWidget())
+                Q_EMIT dw->isFocusedChanged(true);
+
+            break;
+        }
+
+        p = KDDockWidgets::Private::parentWidget(p);
+    }
 }
