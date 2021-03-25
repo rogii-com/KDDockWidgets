@@ -113,7 +113,63 @@ endif()
 
 #option(${PROJECT_NAME}_QTQUICK "Build for QtQuick instead of QtWidgets" OFF)
 
-if(${PROJECT_NAME}_QT6)
+include(${PROJECT_SOURCE_DIR}/cmake/npm_v1/Include.cmake)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    CNPM_ADD_PACKAGE(
+        NAME
+            msvs
+        VERSION
+            2019
+        BUILD_NUMBER
+            1
+    )
+
+    CNPM_ADD_PACKAGE(
+        NAME
+            WindowsSDK
+        VERSION
+            10.0.18362.0
+        BUILD_NUMBER
+            3
+    )
+    CNPM_ADD_PACKAGE(
+      NAME
+        Qt
+      VERSION
+        5.15.1
+      BUILD_NUMBER
+        0
+      TAG
+        "sdk18362_vsbt19"
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    CNPM_ADD_PACKAGE(
+        NAME
+            gxx_runtime
+        VERSION
+            9.2.1
+        BUILD_NUMBER
+            0
+    )
+    CNPM_ADD_PACKAGE(
+        NAME
+            Qt
+        VERSION
+            5.15.1
+        BUILD_NUMBER
+            0
+        TAG
+            "gxx9.2.1"
+    )
+endif()
+
+CNPM_PREPARE_PACKAGES(
+    DEFAULT_REPOSITORY_URLS
+    "$ENV{CNPM_URLS}"
+)
+
+#[[if(${PROJECT_NAME}_QT6)
   find_package(Qt6Widgets REQUIRED)
   find_package(Qt6Test REQUIRED)
   set(QT_MAJOR_VERSION 6)
@@ -121,7 +177,7 @@ else()
   find_package(Qt5Widgets 5.9 REQUIRED)
   find_package(Qt5Test 5.9 REQUIRED)
   set(QT_MAJOR_VERSION 5)
-endif()
+endif()]]
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
