@@ -71,14 +71,14 @@ file(
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}" -DKDDockWidgets_STATIC=true -DKDDockWidgets_EXAMPLES=false -DCMAKE_BUILD_TYPE=Debug -G Ninja -DMSVS_PACKAGE__DISABLE_VERSION_CHECK=ON "../.."
+        "${CMAKE_COMMAND}" -DCMAKE_INSTALL_PREFIX=${ROOT}/${PACKAGE_NAME} -DKDDockWidgets_STATIC=true -DKDDockWidgets_EXAMPLES=false -DCMAKE_BUILD_TYPE=Debug -G Ninja "../.."
     WORKING_DIRECTORY
         "${DEBUG_PATH}"
 )
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}" --build .
+        "${CMAKE_COMMAND}" --build . --target intstall
     WORKING_DIRECTORY
         "${DEBUG_PATH}"
 )
@@ -95,21 +95,21 @@ file(
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}" -DKDDockWidgets_STATIC=true -DKDDockWidgets_EXAMPLES=false -DCMAKE_BUILD_TYPE=RelWithDebInfo -G Ninja -DMSVS_PACKAGE__DISABLE_VERSION_CHECK=ON "../.."
+        "${CMAKE_COMMAND}" -DCMAKE_INSTALL_PREFIX=${ROOT}/${PACKAGE_NAME} -DKDDockWidgets_STATIC=true -DKDDockWidgets_EXAMPLES=false -DCMAKE_BUILD_TYPE=RelWithDebInfo -G Ninja "../.."
     WORKING_DIRECTORY
         "${RELEASE_PATH}"
 )
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}" --build .
+        "${CMAKE_COMMAND}" --build . --target intstall
     WORKING_DIRECTORY
         "${RELEASE_PATH}"
 )
 
 file(
-    COPY        
-        package.cmake
+    COPY
+        rogii/package.cmake
     DESTINATION
         "${ROOT}/${PACKAGE_NAME}"
 )
