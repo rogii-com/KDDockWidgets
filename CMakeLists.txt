@@ -113,7 +113,7 @@ endif()
 
 #option(${PROJECT_NAME}_QTQUICK "Build for QtQuick instead of QtWidgets" OFF)
 
-include(${PROJECT_SOURCE_DIR}/cmake/npm_v1/Include.cmake)
+include(${PROJECT_SOURCE_DIR}/rogii/npm_v1/Include.cmake)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     CNPM_ADD_PACKAGE(
