@@ -169,15 +169,17 @@ CNPM_PREPARE_PACKAGES(
     "$ENV{CNPM_URLS}"
 )
 
-#[[if(${PROJECT_NAME}_QT6)
-  find_package(Qt6Widgets REQUIRED)
-  find_package(Qt6Test REQUIRED)
-  set(QT_MAJOR_VERSION 6)
-else()
-  find_package(Qt5Widgets 5.9 REQUIRED)
-  find_package(Qt5Test 5.9 REQUIRED)
-  set(QT_MAJOR_VERSION 5)
-endif()]]
+# Because we use cnpm, we no need to find_package qt.
+# Unfortunately we loose qt6 support.
+#if(${PROJECT_NAME}_QT6)
+#  find_package(Qt6Widgets REQUIRED)
+#  find_package(Qt6Test REQUIRED)
+#  set(QT_MAJOR_VERSION 6)
+#else()
+#  find_package(Qt5Widgets 5.9 REQUIRED)
+#  find_package(Qt5Test 5.9 REQUIRED)
+#  set(QT_MAJOR_VERSION 5)
+#endif()
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
