@@ -78,7 +78,7 @@ execute_process(
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}" --build . --target intstall
+        "${CMAKE_COMMAND}" --build . --target install
     WORKING_DIRECTORY
         "${DEBUG_PATH}"
 )
@@ -102,7 +102,7 @@ execute_process(
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}" --build . --target intstall
+        "${CMAKE_COMMAND}" --build . --target install
     WORKING_DIRECTORY
         "${RELEASE_PATH}"
 )
