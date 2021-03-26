@@ -284,6 +284,9 @@ if(WIN32)
     # Visual Studio generator
     set_target_properties(kddockwidgets PROPERTIES DEBUG_POSTFIX d)
   endif()
+elseif()
+  # We need to separate debug and release version on linux
+  set(CMAKE_DEBUG_POSTFIX d)
 endif()
 
 install(TARGETS kddockwidgets

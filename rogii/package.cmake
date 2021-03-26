@@ -36,6 +36,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         INTERFACE_INCLUDE_DIRECTORIES
             "${CMAKE_CURRENT_LIST_DIR}/include;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets"
 
+        IMPORTED_LOCATION_DEBUG
+            ${CMAKE_CURRENT_LIST_DIR}/lib/libkddockwidgetsd.a
         IMPORTED_LOCATION
             ${CMAKE_CURRENT_LIST_DIR}/lib/libkddockwidgets.a
     )
