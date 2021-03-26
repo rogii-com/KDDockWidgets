@@ -112,6 +112,7 @@ set(DOCKS_INSTALLABLE_PRIVATE_INCLUDES
     private/WindowBeingDragged_p.h
     private/DockRegistry_p.h
     private/TabWidget_p.h
+    private/Utils_p.h
 )
 
 set(DOCKS_INSTALLABLE_PRIVATE_WIDGET_INCLUDES
@@ -206,6 +207,11 @@ endif()
 
 set(RESOURCES ${CMAKE_CURRENT_SOURCE_DIR}/kddockwidgets_resources.qrc)
 
+# We need pdb for static library
+if(MSVC AND ${PROJECT_NAME}_STATIC)
+  set(CMAKE_COMPILE_PDB_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 add_library(kddockwidgets ${KDDockWidgets_LIBRARY_MODE} ${DOCKSLIBS_SRCS} ${DOCKS_INSTALLABLE_INCLUDES} ${RESOURCES} ${RESOURCES_QUICK})
 add_library(KDAB::kddockwidgets ALIAS kddockwidgets)
 set_compiler_flags(kddockwidgets)
@@ -255,8 +261,12 @@ endif()
 if (WIN32)
     target_link_libraries(kddockwidgets PRIVATE Qt${QT_MAJOR_VERSION}::GuiPrivate dwmapi)
 elseif(NOT APPLE AND NOT EMSCRIPTEN AND NOT ${PROJECT_NAME}_QT6)
-    find_package(Qt${QT_MAJOR_VERSION}X11Extras)
-    target_link_libraries(kddockwidgets PUBLIC Qt${QT_MAJOR_VERSION}::X11Extras)
+    # WORKAROUND: in current QT package we don't have X11Extras.
+    # We decided to remove remove it from build KDDW, cause we don't need correct work
+    # just build.
+
+    #find_package(Qt${QT_MAJOR_VERSION}X11Extras)
+    #target_link_libraries(kddockwidgets PUBLIC Qt${QT_MAJOR_VERSION}::X11Extras)
 endif()
 
 set_target_properties(kddockwidgets PROPERTIES
@@ -272,13 +282,18 @@ if(WIN32)
     if(${UPPER_BUILD_TYPE} MATCHES "^DEBUG")
       string(CONCAT postfix ${postfix} "d")
       set_target_properties(kddockwidgets PROPERTIES DEBUG_POSTFIX ${postfix})
+      set_target_properties(kddockwidgets PROPERTIES COMPILE_PDB_NAME_DEBUG kddockwidgets${postfix})
     else()
       set_target_properties(kddockwidgets PROPERTIES ${UPPER_BUILD_TYPE}_POSTFIX ${postfix})
+      set_target_properties(kddockwidgets PROPERTIES COMPILE_PDB_NAME kddockwidgets${postfix})
     endif()
   elseif(CMAKE_CONFIGURATION_TYPES)
     # Visual Studio generator
     set_target_properties(kddockwidgets PROPERTIES DEBUG_POSTFIX d)
   endif()
+else()
+  # We need to separate debug and release version on linux
+  set_target_properties(kddockwidgets PROPERTIES DEBUG_POSTFIX "d")
 endif()
 
 install(TARGETS kddockwidgets
@@ -287,8 +302,17 @@ install(TARGETS kddockwidgets
         LIBRARY DESTINATION ${INSTALL_LIBRARY_DIR}
         ARCHIVE DESTINATION ${INSTALL_ARCHIVE_DIR}
 )
-if(MSVC AND NOT ${PROJECT_NAME}_STATIC)
-  install(FILES "$<TARGET_PDB_FILE_DIR:kddockwidgets>/$<TARGET_PDB_FILE_NAME:kddockwidgets>" DESTINATION ${INSTALL_LIBRARY_DIR} CONFIGURATIONS Debug RelWithDebInfo)
+
+# We need pdb for shared and static
+if(MSVC)
+  if (NOT ${PROJECT_NAME}_STATIC)
+    install(FILES "$<TARGET_PDB_FILE_DIR:kddockwidgets>/$<TARGET_PDB_FILE_NAME:kddockwidgets>" DESTINATION ${INSTALL_LIBRARY_DIR} CONFIGURATIONS Debug RelWithDebInfo)
+  else()
+    get_target_property(RELEASE_PDB_NAME kddockwidgets COMPILE_PDB_NAME)
+    get_target_property(DEBUG_PDB_NAME kddockwidgets COMPILE_PDB_NAME_DEBUG)
+    install(FILES "$<TARGET_FILE_DIR:kddockwidgets>/${RELEASE_PDB_NAME}.pdb" DESTINATION ${INSTALL_LIBRARY_DIR} CONFIGURATIONS RelWithDebInfo)
+    install(FILES "$<TARGET_FILE_DIR:kddockwidgets>/${DEBUG_PDB_NAME}.pdb" DESTINATION ${INSTALL_LIBRARY_DIR} CONFIGURATIONS Debug)
+  endif()
 endif()
 install(FILES ${DOCKS_INSTALLABLE_INCLUDES} DESTINATION include/kddockwidgets)
 install(FILES ${DOCKS_INSTALLABLE_PRIVATE_INCLUDES} DESTINATION include/kddockwidgets/private)

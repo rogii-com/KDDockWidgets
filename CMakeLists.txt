@@ -113,15 +113,58 @@ endif()
 
 #option(${PROJECT_NAME}_QTQUICK "Build for QtQuick instead of QtWidgets" OFF)
 
-if(${PROJECT_NAME}_QT6)
-  find_package(Qt6Widgets REQUIRED)
-  find_package(Qt6Test REQUIRED)
-  set(QT_MAJOR_VERSION 6)
-else()
-  find_package(Qt5Widgets 5.9 REQUIRED)
-  find_package(Qt5Test 5.9 REQUIRED)
-  set(QT_MAJOR_VERSION 5)
+include(${PROJECT_SOURCE_DIR}/rogii/npm_v1/Include.cmake)
+include(${PROJECT_SOURCE_DIR}/rogii/msvs_package.cmake)
+include(${PROJECT_SOURCE_DIR}/rogii/windowssdk_package.cmake)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    CNPM_ADD_PACKAGE(
+      NAME
+        Qt
+      VERSION
+        5.15.1
+      BUILD_NUMBER
+        0
+      TAG
+        "sdk18362_vsbt19"
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    CNPM_ADD_PACKAGE(
+        NAME
+            gxx_runtime
+        VERSION
+            9.2.1
+        BUILD_NUMBER
+            0
+    )
+    CNPM_ADD_PACKAGE(
+        NAME
+            Qt
+        VERSION
+            5.15.1
+        BUILD_NUMBER
+            0
+        TAG
+            "gxx9.2.1"
+    )
 endif()
+
+CNPM_PREPARE_PACKAGES(
+    DEFAULT_REPOSITORY_URLS
+    "$ENV{CNPM_URLS}"
+)
+
+# Because we use cnpm, we no need to find_package qt.
+# Unfortunately we loose qt6 support.
+#if(${PROJECT_NAME}_QT6)
+#  find_package(Qt6Widgets REQUIRED)
+#  find_package(Qt6Test REQUIRED)
+#  set(QT_MAJOR_VERSION 6)
+#else()
+#  find_package(Qt5Widgets 5.9 REQUIRED)
+#  find_package(Qt5Test 5.9 REQUIRED)
+#  set(QT_MAJOR_VERSION 5)
+#endif()
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
