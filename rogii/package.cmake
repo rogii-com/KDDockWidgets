@@ -23,7 +23,7 @@ if(MSVC)
             "Qt5::Widgets;\$<LINK_ONLY:Qt5::GuiPrivate>;\$<LINK_ONLY:Dwmapi>"
 
         IMPORTED_LOCATION_DEBUG
-            ${CMAKE_CURRENT_LIST_DIR}/lib/debug/kddockwidgets1d.lib
+            ${CMAKE_CURRENT_LIST_DIR}/lib/kddockwidgets1d.lib
 
         IMPORTED_LOCATION
             ${CMAKE_CURRENT_LIST_DIR}/lib/kddockwidgets1.lib
