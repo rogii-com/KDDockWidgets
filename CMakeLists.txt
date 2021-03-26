@@ -131,7 +131,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         VERSION
             10.0.18362.0
         BUILD_NUMBER
-            3
+            4
     )
     CNPM_ADD_PACKAGE(
       NAME
