@@ -114,10 +114,11 @@ endif()
 #option(${PROJECT_NAME}_QTQUICK "Build for QtQuick instead of QtWidgets" OFF)
 
 include(${PROJECT_SOURCE_DIR}/rogii/npm_v1/Include.cmake)
-include(${PROJECT_SOURCE_DIR}/rogii/msvs_package.cmake)
-include(${PROJECT_SOURCE_DIR}/rogii/windowssdk_package.cmake)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    include(${PROJECT_SOURCE_DIR}/rogii/msvs_package.cmake)
+    include(${PROJECT_SOURCE_DIR}/rogii/windowssdk_package.cmake)
+    
     CNPM_ADD_PACKAGE(
       NAME
         Qt
