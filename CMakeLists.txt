@@ -157,6 +157,22 @@ else()
   set(IS_CLANG_BUILD FALSE)
 endif()
 
+set(
+    ROGII_FOLDER_PATH
+    "${CMAKE_CURRENT_LIST_DIR}/rogii"
+)
+
+include(${ROGII_FOLDER_PATH}/npm/Include.cmake)
+include(${ROGII_FOLDER_PATH}/environment.cmake)
+
+CNPM_PREPARE_PACKAGES(
+    DEFAULT_REPOSITORY_URLS
+    "$ENV{CNPM_URLS}"
+)
+
+#[[
+Because we use cnpm, we no need to find_package qt.
+Unfortunately we loose qt6 support.
 if(${PROJECT_NAME}_QT6)
   find_package(Qt6Widgets REQUIRED)
   find_package(Qt6Test REQUIRED)
@@ -168,6 +184,7 @@ else()
   set(QT_MAJOR_VERSION 5)
   set(KDDockWidgets_LIBRARY_QTID "")
 endif()
+]]
 
 if(${PROJECT_NAME}_QTQUICK)
   set(CMAKE_CXX_STANDARD 17)
