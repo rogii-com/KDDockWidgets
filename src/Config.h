@@ -61,6 +61,9 @@ public:
     ~Config();
 
     ///@brief Flag enum to tune certain behaviours, the defaults are Flag_Default
+    ///@warning Only the default is supported on all platforms. Not all options work with all window managers,
+    ///         Qt does its best to abstract the differences however that's only a best effort. This is true specially
+    ///         for any option that changes window flags.
     enum Flag
     {
         Flag_None = 0, ///< No option set
@@ -83,6 +86,7 @@ public:
         Flag_KeepAboveIfNotUtilityWindow = 0x10000, ///< Only meaningful if Flag_DontUseUtilityFloatingWindows is set. If floating windows are normal windows, you might still want them to keep above and not minimize when you focus the main window.
         Flag_CloseOnlyCurrentTab = 0x20000, ///< The TitleBar's close button will only close the current tab, instead of all of them
         Flag_ShowButtonsOnTabBarIfTitleBarHidden = 0x40000, ///< When using Flag_HideTitleBarWhenTabsVisible the close/float buttons disappear with the title bar. With Flag_ShowButtonsOnTabBarIfHidden they'll be shown in the tab bar.
+        Flag_AllowSwitchingTabsViaMenu = 0x80000, ///< Allow switching tabs via a context menu when right clicking on the tab area
         Flag_Default = Flag_AeroSnapWithClientDecos ///< The defaults
     };
     Q_DECLARE_FLAGS(Flags, Flag)
@@ -112,8 +116,9 @@ public:
         InternalFlag_DontUseQtToolWindowsForFloatingWindows = 4, ///< FloatingWindows will use Qt::Window instead of Qt::Tool.
         InternalFlag_DontShowWhenUnfloatingHiddenWindow = 8, ///< DockWidget::setFloating(false) won't do anything if the window is hidden.
         InternalFlag_UseTransparentFloatingWindow = 16, ///< For QtQuick only. Allows to have round-corners. It's flaky when used with native Windows drop-shadow.
-        InternalFlag_DisableTranslucency = 32 ///< KDDW tries to detect if your Window Manager doesn't support transparent windows, but the detection might fail
-            /// with more exotic setups. This flag can be used to override.
+        InternalFlag_DisableTranslucency = 32, ///< KDDW tries to detect if your Window Manager doesn't support transparent windows, but the detection might fail
+        /// with more exotic setups. This flag can be used to override.
+        InternalFlag_TopLevelIndicatorRubberBand = 64 ///< Makes the rubber band of classic drop indicators to be top-level windows. Helps with working around MFC bugs
     };
     Q_DECLARE_FLAGS(InternalFlags, InternalFlag)
 

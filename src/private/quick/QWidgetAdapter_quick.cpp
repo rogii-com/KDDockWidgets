@@ -257,7 +257,6 @@ QSize QWidgetAdapter::minimumSize() const
 
 QSize QWidgetAdapter::maximumSize() const
 {
-
     if (m_isWrapper) {
         const auto children = childItems();
         if (!children.isEmpty()) {
@@ -297,6 +296,27 @@ QRect QWidgetAdapter::geometry() const
     }
 
     return KDDockWidgets::Private::geometry(this);
+}
+
+QRect QWidgetAdapter::normalGeometry() const
+{
+    // TODO: There's no such concept in QWindow, do we need to workaround for QtQuick ?
+    return QWidgetAdapter::geometry();
+}
+
+void QWidgetAdapter::setNormalGeometry(QRect geo)
+{
+    if (!isTopLevel())
+        return;
+
+    if (QWindow *w = windowHandle()) {
+        if (isNormalWindowState(w->windowStates())) {
+            w->setGeometry(geo);
+        } else {
+            // Nothing better at this point, as QWindow doesn't have this concept
+            qDebug() << Q_FUNC_INFO << "TODO";
+        }
+    }
 }
 
 QRect QWidgetAdapter::rect() const
@@ -414,6 +434,14 @@ bool QWidgetAdapter::isMaximized() const
 {
     if (QWindow *w = windowHandle())
         return w->windowStates() & Qt::WindowMaximized;
+
+    return false;
+}
+
+bool QWidgetAdapter::isMinimized() const
+{
+    if (QWindow *w = windowHandle())
+        return w->windowStates() & Qt::WindowMinimized;
 
     return false;
 }
@@ -724,6 +752,15 @@ bool QWidgetAdapter::eventFilter(QObject *watched, QEvent *ev)
     }
 
     return QQuickItem::eventFilter(watched, ev);
+}
+
+QScreen *QWidgetAdapter::screen() const
+{
+    if (QQuickView *w = quickView()) {
+        return w->screen();
+    }
+
+    return nullptr;
 }
 
 void QWidgetAdapter::setWindowIsBeingDestroyed(bool is)

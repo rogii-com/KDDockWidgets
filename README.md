@@ -106,10 +106,16 @@ You can change the installation location by passing the option `-DCMAKE_INSTALL_
 
 Using
 =====
-From your CMake project, add
+From your CMake Qt5 project, add
 
 ```
     find_package(KDDockWidgets CONFIG)
+```
+
+or for Qt6
+
+```
+    find_package(KDDockWidgets-qt6 CONFIG)
 ```
 
 and link to the imported target `KDAB::kddockwidgets`.
@@ -140,12 +146,23 @@ your application whenever updating KDDW.
 
 Supported Qt versions and toolchains
 =====================================
-KDDockWidgets requires Qt5 >= 5.12 or Qt6 >= 6.1.
-The QtQuick support requires Qt5 >= 5.15 or Qt6 >= 6.1.
+KDDockWidgets requires Qt 5.15.x or Qt6 >= 6.2.
 
 
-Regarding compilers, whatever toolchain is able to build Qt 5.9 should also be
-fine. Note however that MSVC 2013 isn't supported anymore due to compiler crashes.
+Styling
+========
+
+Almost all private widgets used by KDDW can be derived by the user to give them
+a custom look. That's done by providing your own FrameworkWidgetFactory. Run
+"kddockwidgets_example -p" to see that in action.
+
+Qt StyleSheets are not, and will not, be supported. See the comments in
+`examples/dockwidgets/MyTitleBar_CSS.h` for why. You can however use some minimal
+CSS, as shown in that example, just don't report bugs about it.
+
+Warning: When using private headers, be sure to rebuild your application whenever you
+update to a new KDDW version. Binary compatibility is only kept when using public
+headers.
 
 
 Licensing

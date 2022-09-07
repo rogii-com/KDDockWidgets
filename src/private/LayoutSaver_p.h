@@ -97,7 +97,7 @@ struct LayoutSaver::Placeholder
 struct LayoutSaver::ScalingInfo
 {
     ScalingInfo() = default;
-    explicit ScalingInfo(const QString &mainWindowId, QRect savedMainWindowGeo);
+    explicit ScalingInfo(const QString &mainWindowId, QRect savedMainWindowGeo, int screenIndex);
 
     bool isValid() const
     {
@@ -114,6 +114,7 @@ struct LayoutSaver::ScalingInfo
     QRect realMainWindowGeometry;
     double heightFactor = -1;
     double widthFactor = -1;
+    bool mainWindowChangedScreen = false;
 };
 
 struct LayoutSaver::Position
@@ -212,6 +213,10 @@ struct LayoutSaver::Frame
     int currentTabIndex;
     QString id; // for coorelation purposes
 
+    /// Might be empty if not in a main window. Used so we don't create a frame when restoring
+    /// the persistent central frame, that's never deleted when restoring
+    QString mainWindowUniqueName;
+
     LayoutSaver::DockWidget::List dockWidgets;
 };
 
@@ -250,12 +255,14 @@ struct LayoutSaver::FloatingWindow
     QStringList affinities;
     int parentIndex = -1;
     QRect geometry;
+    QRect normalGeometry;
     int screenIndex;
     QSize screenSize; // for relative-size restoring
     bool isVisible = true;
 
     // The instance that was created during a restore:
     KDDockWidgets::FloatingWindow *floatingWindowInstance = nullptr;
+    Qt::WindowState windowState = Qt::WindowNoState;
 };
 
 struct LayoutSaver::MainWindow
@@ -343,6 +350,7 @@ public:
     QStringList mainWindowNames() const;
     QStringList dockWidgetNames() const;
     QStringList dockWidgetsToClose() const;
+    bool containsDockWidget(const QString &uniqueName) const;
 
     int serializationVersion = KDDOCKWIDGETS_SERIALIZATION_VERSION;
     LayoutSaver::MainWindow::List mainWindows;
@@ -369,6 +377,7 @@ public:
 
     bool matchesAffinity(const QStringList &affinities) const;
     void floatWidgetsWhichSkipRestore(const QStringList &mainWindowNames);
+    void floatUnknownWidgets(const LayoutSaver::Layout &layout);
 
     template<typename T>
     void deserializeWindowGeometry(const T &saved, QWidgetOrQuick *topLevel);

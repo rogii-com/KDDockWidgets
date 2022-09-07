@@ -619,6 +619,51 @@ void TestDocks::tst_restoreMaximizedState()
     QCOMPARE(m->windowHandle()->windowState(), Qt::WindowMaximized);
 }
 
+void TestDocks::tst_restoreFloatingMinimizedState()
+{
+    EnsureTopLevelsDeleted e;
+    auto dock1 = createDockWidget("dock1", new MyWidget("one"));
+    dock1->floatingWindow()->showMinimized();
+
+    QCOMPARE(dock1->floatingWindow()->windowHandle()->windowState(), Qt::WindowMinimized);
+
+    LayoutSaver saver;
+    const QByteArray saved = saver.serializeLayout();
+
+    saver.restoreLayout(saved);
+    QCOMPARE(dock1->floatingWindow()->windowHandle()->windowState(), Qt::WindowMinimized);
+}
+
+void TestDocks::tst_restoreNonExistingDockWidget()
+{
+    // If the layout is old and doesn't know about some dock widget, then we need to float it
+    // before restoring the MainWindow's layout
+
+    QByteArray saved;
+    const QSize defaultMainWindowSize = { 500, 500 };
+
+    {
+        EnsureTopLevelsDeleted e;
+        auto m = createMainWindow(defaultMainWindowSize, MainWindowOption_None, "mainwindow1");
+        LayoutSaver saver;
+        saved = saver.serializeLayout();
+    }
+
+    EnsureTopLevelsDeleted e;
+    auto m = createMainWindow(defaultMainWindowSize, MainWindowOption_None, "mainwindow1");
+    auto dock2 = createDockWidget("dock2", new MyWidget("dock2"));
+    m->addDockWidget(dock2, Location_OnBottom);
+    LayoutSaver restorer;
+    SetExpectedWarning sew("Couldn't find dock widget");
+    QVERIFY(restorer.restoreLayout(saved));
+    auto da = m->dropArea();
+    QVERIFY(m->dropArea()->checkSanity());
+    QCOMPARE(da->frames().size(), 0);
+
+    QVERIFY(dock2->isOpen());
+    QVERIFY(dock2->isFloating());
+}
+
 void TestDocks::tst_setFloatingSimple()
 {
     EnsureTopLevelsDeleted e;
@@ -829,6 +874,31 @@ void TestDocks::tst_shutdown()
 }
 
 #ifdef KDDOCKWIDGETS_QTWIDGETS
+
+void TestDocks::tst_restoreFloatingMaximizedState()
+{
+    EnsureTopLevelsDeleted e;
+    KDDockWidgets::Config::self().setFlags(KDDockWidgets::Config::Flag_TitleBarHasMaximizeButton);
+    auto dock1 = createDockWidget("dock1", new MyWidget("one"));
+    const QRect originalNormalGeometry = dock1->floatingWindow()->normalGeometry();
+    dock1->floatingWindow()->showMaximized();
+    qDebug() << originalNormalGeometry;
+
+    QCOMPARE(dock1->floatingWindow()->windowHandle()->windowState(), Qt::WindowMaximized);
+
+    LayoutSaver saver;
+    const QByteArray saved = saver.serializeLayout();
+
+    saver.restoreLayout(saved);
+    QCOMPARE(dock1->floatingWindow()->windowHandle()->windowState(), Qt::WindowMaximized);
+
+
+
+    QCOMPARE(dock1->floatingWindow()->normalGeometry(), originalNormalGeometry);
+
+    dock1->floatingWindow()->showNormal();
+    QCOMPARE(dock1->floatingWindow()->normalGeometry(), originalNormalGeometry);
+}
 
 void TestDocks::tst_complex()
 {
@@ -3709,6 +3779,23 @@ void TestDocks::tst_restoreSideBySide()
     }
 }
 
+void TestDocks::tst_restoreWithCentralFrameWithTabs()
+{
+    auto m = createMainWindow(QSize(500, 500), MainWindowOption_HasCentralFrame, "tst_restoreTwice");
+    auto dock1 = createDockWidget("1", new QPushButton("1"));
+    auto dock2 = createDockWidget("2", new QPushButton("2"));
+    m->addDockWidgetAsTab(dock1);
+    m->addDockWidgetAsTab(dock2);
+
+    QCOMPARE(DockRegistry::self()->frames().size(), 1);
+
+    LayoutSaver saver;
+    const QByteArray saved = saver.serializeLayout();
+    QVERIFY(saver.restoreLayout(saved));
+
+    QCOMPARE(DockRegistry::self()->frames().size(), 1);
+}
+
 void TestDocks::tst_restoreWithPlaceholder()
 {
     // Float dock1, save and restore, then unfloat and see if dock2 goes back to where it was
@@ -4048,12 +4135,14 @@ void TestDocks::tst_dragOverTitleBar()
     DropArea *da = dock1->floatingWindow()->dropArea();
     FloatingWindow *fw1 = dock1->floatingWindow();
     FloatingWindow *fw2 = dock2->floatingWindow();
-    WindowBeingDragged wbd(fw2, fw2);
+    {
+        WindowBeingDragged wbd(fw2, fw2);
 
-    const QPoint titleBarPoint = fw1->titleBar()->mapToGlobal(QPoint(5, 5));
+        const QPoint titleBarPoint = fw1->titleBar()->mapToGlobal(QPoint(5, 5));
 
-    auto loc = da->hover(&wbd, titleBarPoint);
-    QCOMPARE(loc, DropIndicatorOverlayInterface::DropLocation_None);
+        auto loc = da->hover(&wbd, titleBarPoint);
+        QCOMPARE(loc, DropIndicatorOverlayInterface::DropLocation_None);
+    }
 
     delete fw1;
     delete fw2;
@@ -5083,6 +5172,7 @@ void TestDocks::tst_restoreSideBar()
 
         serialized = saver.serializeLayout();
 
+        m1.reset();
         delete fw1;
     }
 
@@ -5168,6 +5258,31 @@ void TestDocks::tst_deleteOnCloseWhenOnSideBar()
     QVERIFY(dock1);
 }
 
+void TestDocks::tst_sidebarOverlayShowsAutohide()
+{
+    // Tests that overlayed widgets show the "Disable auto-hide" button
+
+    EnsureTopLevelsDeleted e;
+    KDDockWidgets::Config::self().setFlags(KDDockWidgets::Config::Flag_AutoHideSupport);
+
+    auto m1 = createMainWindow(QSize(1000, 1000), MainWindowOption_None, "MW1");
+    auto dw1 = new DockWidgetType(QStringLiteral("1"));
+
+    m1->addDockWidget(dw1, Location_OnBottom);
+    QVERIFY(dw1->titleBar()->supportsAutoHideButton());
+
+    m1->moveToSideBar(dw1);
+    m1->overlayOnSideBar(dw1);
+
+    QVERIFY(dw1->isOverlayed());
+
+    auto titleBar = dw1->titleBar();
+    QVERIFY(titleBar->isVisible());
+    QVERIFY(titleBar->supportsAutoHideButton());
+
+    delete dw1;
+}
+
 void TestDocks::tst_sidebarOverlayGetsHiddenOnClick()
 {
     EnsureTopLevelsDeleted e;
@@ -5199,6 +5314,7 @@ void TestDocks::tst_sidebarOverlayGetsHiddenOnClick()
         Tests::clickOn(widget2->mapToGlobal(widget2->rect().bottomLeft() + QPoint(5, -5)), widget2);
         QVERIFY(!dw1->isOverlayed());
 
+        m1.reset();
         delete dw1;
     }
 
@@ -5218,8 +5334,6 @@ void TestDocks::tst_sidebarOverlayGetsHiddenOnClick()
         const QPoint localPt(100, 250);
         Tests::clickOn(m1->mapToGlobal(m1->rect().topLeft() + localPt), m1->childAt(localPt));
         QVERIFY(!dw1->isOverlayed());
-
-        delete dw1;
     }
 }
 
@@ -5428,7 +5542,9 @@ void TestDocks::tst_restoreNonRelativeFloatingWindowGeometry()
     EnsureTopLevelsDeleted e;
     auto m = createMainWindow(QSize(500, 500), MainWindowOption_None);
     auto dock1 = createDockWidget("1", new QPushButton("1"));
-    dock1->show();
+
+    // Also test that invisible dock doesn't change size
+    auto dock2 = createDockWidget("2", new QPushButton("2"), {}, {}, /*show=*/false);
 
     LayoutSaver saver(RestoreOption_RelativeToMainWindow);
     saver.dptr()->m_restoreOptions.setFlag(InternalRestoreOption::RelativeFloatingWindowGeometry,
@@ -5437,11 +5553,16 @@ void TestDocks::tst_restoreNonRelativeFloatingWindowGeometry()
     const QByteArray saved = saver.serializeLayout();
 
     const QSize floatingWindowSize = dock1->window()->size();
+    const QSize floatingWindowSize2 = dock2->window()->size();
 
     m->resize(m->width() * 2, m->height());
     saver.restoreLayout(saved);
 
+    QVERIFY(dock2->isFloating());
+    QVERIFY(!dock2->isOpen());
+
     QCOMPARE(dock1->window()->size(), floatingWindowSize);
+    QCOMPARE(dock2->window()->size(), floatingWindowSize2);
 }
 
 void TestDocks::tst_maximumSizePolicy()
@@ -7236,6 +7357,31 @@ void TestDocks::tst_toggleTabbed2()
     QCOMPARE(frame1->title(), "dock1");
 }
 
+void TestDocks::tst_resizePropagatesEvenly()
+{
+    // For github issue #186
+    // Usually resizing main window will resize dock widgets evenly, but if you resize multiple
+    // times then one dock widget is getting too small. Not repro with all layouts, but the following
+    // one reproduced it:
+
+    auto m = createMainWindow(QSize(1000, 1000), MainWindowOption_None);
+    auto dock0 = createDockWidget("dock0", new MyWidget2());
+    auto dock1 = createDockWidget("dock1", new MyWidget2());
+    auto dock2 = createDockWidget("dock2", new MyWidget2());
+
+    m->addDockWidget(dock1, Location_OnLeft);
+    m->addDockWidget(dock2, Location_OnTop, dock1);
+    m->addDockWidget(dock0, Location_OnRight);
+
+    QVERIFY(qAbs(dock2->height() - dock1->height()) < 2);
+
+    m->resize(m->size() + QSize(0, 500));
+    for (int i = 1; i < 10; ++i)
+        m->resize(m->size() - QSize(0, i));
+
+    QVERIFY(qAbs(dock2->height() - dock1->height()) < 3);
+}
+
 void TestDocks::tst_addMDIDockWidget()
 {
     EnsureTopLevelsDeleted e;
@@ -7321,4 +7467,45 @@ void TestDocks::tst_closeTabOfCentralFrame()
     QVERIFY(frame->QWidgetAdapter::isVisible());
     dock1->close();
     QVERIFY(frame->QWidgetAdapter::isVisible());
+}
+
+void TestDocks::tst_centralFrame245()
+{
+    /*
+
+    Build: -DKDDockWidgets_DEVELOPER_MODE=ON
+    Run: ./bin/tst_docks tst_centralFrame245 -platform xcb
+
+    auto m = createMainWindow(QSize(500, 500), MainWindowOption_HasCentralFrame, "tst_centralFrame245");
+    auto dock1 = createDockWidget("1", new QPushButton("1"));
+    auto dock2 = createDockWidget("2", new QPushButton("2"));
+
+    m->addDockWidgetAsTab(dock1);
+    m->addDockWidgetAsTab(dock2);
+
+    QTest::qWait(100000);
+
+*/
+}
+
+void TestDocks::tst_persistentCentralWidget()
+{
+    EnsureTopLevelsDeleted e;
+    auto m = createMainWindow(QSize(500, 500), MainWindowOption_HasCentralWidget);
+    auto dockwidgets = m->dropArea()->dockWidgets();
+    QCOMPARE(dockwidgets.size(), 1);
+
+    auto dw = dockwidgets.constFirst();
+    dw->close();
+    QVERIFY(dw->isOpen());
+    QVERIFY(dw->isPersistentCentralDockWidget());
+    dw->setFloating(true);
+    QVERIFY(!dw->isFloating());
+
+
+    LayoutSaver saver;
+    const QByteArray saved = saver.serializeLayout();
+    QVERIFY(!saved.isEmpty());
+
+    QVERIFY(saver.restoreLayout(saved));
 }

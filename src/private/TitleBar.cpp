@@ -130,7 +130,7 @@ void TitleBar::toggleMaximized()
     if (!m_floatingWindow)
         return;
 
-    if (m_floatingWindow->isMaximized())
+    if (m_floatingWindow->isMaximizedOverride())
         m_floatingWindow->showNormal();
     else
         m_floatingWindow->showMaximized();
@@ -285,7 +285,7 @@ bool TitleBar::supportsMinimizeButton() const
 bool TitleBar::supportsAutoHideButton() const
 {
     // Only dock widgets docked into the MainWindow can minimize
-    return m_supportsAutoHide && m_frame && m_frame->isInMainWindow();
+    return m_supportsAutoHide && m_frame && (m_frame->isInMainWindow() || m_frame->isOverlayed());
 }
 
 bool TitleBar::hasIcon() const

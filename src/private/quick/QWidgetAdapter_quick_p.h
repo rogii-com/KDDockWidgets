@@ -122,6 +122,8 @@ public:
     virtual void setGeometry(QRect);
     QRect frameGeometry() const;
     QRect geometry() const;
+    QRect normalGeometry() const;
+    void setNormalGeometry(QRect);
     QRect rect() const;
     QPoint pos() const;
     void show();
@@ -184,12 +186,14 @@ public:
         return isWindow();
     }
     bool isMaximized() const;
+    bool isMinimized() const;
     bool isActiveWindow() const;
     Q_INVOKABLE void showMaximized();
     Q_INVOKABLE void showMinimized();
     Q_INVOKABLE void showNormal();
     Q_INVOKABLE void redirectMouseEvents(QObject *from);
 
+    QScreen *screen() const;
     QQuickView *quickView() const;
     QWindow *windowHandle() const;
     QWidgetAdapter *window() const;

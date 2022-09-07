@@ -21,8 +21,6 @@
 #include "private/DockRegistry_p.h"
 #include "private/Utils_p.h"
 
-// #define KDDOCKWIDGETS_RUBBERBAND_IS_TOPLEVEL 1
-
 using namespace KDDockWidgets;
 
 static IndicatorWindow *createIndicatorWindow(ClassicIndicators *classicIndicators)
@@ -108,7 +106,7 @@ void ClassicIndicators::updateIndicatorsVisibility(bool visible)
 
     // Only allow to dock to center if the affinities match
     auto tabbingAllowedFunc = Config::self().tabbingAllowedFunc();
-    m_tabIndicatorVisible = m_innerIndicatorsVisible && windowBeingDragged && DockRegistry::self()->affinitiesMatch(m_hoveredFrame->affinities(), windowBeingDragged->affinities());
+    m_tabIndicatorVisible = m_innerIndicatorsVisible && windowBeingDragged && DockRegistry::self()->affinitiesMatch(m_hoveredFrame->affinities(), windowBeingDragged->affinities()) && m_hoveredFrame->isDockable();
     if (m_tabIndicatorVisible && tabbingAllowedFunc) {
         const DockWidgetBase::List source = windowBeingDragged->dockWidgets();
         const DockWidgetBase::List target = m_hoveredFrame->dockWidgets();
@@ -221,11 +219,7 @@ void ClassicIndicators::updateWindowPosition()
 
 bool ClassicIndicators::rubberBandIsTopLevel() const
 {
-#ifdef KDDOCKWIDGETS_RUBBERBAND_IS_TOPLEVEL
-    return true;
-#else
-    return false;
-#endif
+    return Config::self().internalFlags() & Config::InternalFlag_TopLevelIndicatorRubberBand;
 }
 
 QRect ClassicIndicators::geometryForRubberband(QRect localRect) const

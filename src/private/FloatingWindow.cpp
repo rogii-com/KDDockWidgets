@@ -369,6 +369,18 @@ void FloatingWindow::onVisibleFrameCountChanged(int count)
     setVisible(count > 0);
 }
 
+Qt::WindowState FloatingWindow::windowStateOverride() const
+{
+    Qt::WindowState state = Qt::WindowNoState;
+
+    if (isMaximizedOverride())
+        state = Qt::WindowMaximized;
+    else if (isMinimizedOverride())
+        state = Qt::WindowMinimized;
+
+    return state;
+}
+
 void FloatingWindow::updateTitleBarVisibility()
 {
     if (m_updatingTitleBarVisibility)
@@ -446,7 +458,21 @@ bool FloatingWindow::deserialize(const LayoutSaver::FloatingWindow &fw)
 {
     if (dropArea()->deserialize(fw.multiSplitterLayout)) {
         updateTitleBarVisibility();
-        show();
+
+        if (fw.normalGeometry.isValid() && !isNormalWindowState(fw.windowState)) {
+            // Restore QWidgetPrivate's normalGeometry (no public API in QWidget)
+            setNormalGeometry(fw.normalGeometry);
+        }
+
+        // And show it:
+        if (fw.windowState & Qt::WindowMaximized) {
+            showMaximized();
+        } else if (fw.windowState & Qt::WindowMinimized) {
+            showMinimized();
+        } else {
+            showNormal();
+        }
+
         return true;
     } else {
         return false;
@@ -458,11 +484,13 @@ LayoutSaver::FloatingWindow FloatingWindow::serialize() const
     LayoutSaver::FloatingWindow fw;
 
     fw.geometry = geometry();
+    fw.normalGeometry = normalGeometry();
     fw.isVisible = isVisible();
     fw.multiSplitterLayout = dropArea()->serialize();
     fw.screenIndex = screenNumberForWidget(this);
     fw.screenSize = screenSizeForWidget(this);
     fw.affinities = affinities();
+    fw.windowState = windowStateOverride();
 
     auto mainWindow = qobject_cast<MainWindowBase *>(parentWidget());
     fw.parentIndex = mainWindow ? DockRegistry::self()->mainwindows().indexOf(mainWindow)
@@ -557,6 +585,36 @@ MainWindowBase *FloatingWindow::mainWindow() const
 QMargins FloatingWindow::contentMargins() const
 {
     return { 4, 4, 4, 4 };
+}
+
+bool FloatingWindow::isMaximizedOverride() const
+{
+    return QWidgetAdapter::isMaximized();
+}
+
+bool FloatingWindow::isMinimizedOverride() const
+{
+    return QWidgetAdapter::isMinimized();
+}
+
+void FloatingWindow::showMaximized()
+{
+    QWidgetAdapter::showMaximized();
+}
+
+void FloatingWindow::showNormal()
+{
+    QWidgetAdapter::showNormal();
+}
+
+void FloatingWindow::showMinimized()
+{
+    QWidgetAdapter::showMinimized();
+}
+
+QRect FloatingWindow::normalGeometry() const
+{
+    return QWidgetAdapter::normalGeometry();
 }
 
 int FloatingWindow::userType() const
