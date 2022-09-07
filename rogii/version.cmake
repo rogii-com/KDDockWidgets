@@ -5,7 +5,7 @@ set(
 
 set(
     KDDOCKWIDGETS_VERSION_MINOR
-    4
+    5
 )
 
 set(
