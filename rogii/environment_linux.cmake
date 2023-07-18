@@ -2,7 +2,7 @@ CNPM_ADD_PACKAGE(
     NAME
         gxx_runtime
     VERSION
-        9.2.1
+        12.2.0
     BUILD_NUMBER
         0
 )
@@ -10,9 +10,9 @@ CNPM_ADD_PACKAGE(
     NAME
         Qt
     VERSION
-        5.15.1
+        5.15.9
     BUILD_NUMBER
-        29
+        544
     TAG
         "gxx9.2.1"
 )
