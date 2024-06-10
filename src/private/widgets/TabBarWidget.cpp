@@ -24,6 +24,8 @@
 #include <QApplication>
 #include <QProxyStyle>
 
+#include <private/qtabbar_p.h>
+
 // clazy:excludeall=ctor-missing-parent-argument,missing-qobject-macro
 
 namespace KDDockWidgets {
@@ -168,4 +170,16 @@ QRect TabBarWidget::rectForTab(int index) const
 void TabBarWidget::moveTabTo(int from, int to)
 {
     moveTab(from, to);
+}
+
+void TabBarWidget::tabRemoved(int index)
+{
+    QTabBar::tabRemoved(index);
+
+    // WORKAROUND: To eliminate https://github.com/KDAB/KDDockWidgets/issues/253
+    auto * tabBarPrivate = reinterpret_cast<QTabBarPrivate *>(qGetPtrHelper(d_ptr));
+    Q_ASSERT(nullptr != tabBarPrivate);
+
+    if (index == tabBarPrivate->pressedIndex)
+        tabBarPrivate->pressedIndex = -1;
 }
