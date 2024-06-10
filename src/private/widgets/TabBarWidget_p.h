@@ -51,6 +51,9 @@ public:
     void moveTabTo(int from, int to) override;
 
 protected:
+    void tabRemoved(int index) override;
+
+protected:
     bool dragCanStart(QPoint pressPos, QPoint pos) const override;
     void mousePressEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent *e) override;
