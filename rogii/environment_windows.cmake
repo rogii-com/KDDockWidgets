@@ -5,9 +5,9 @@ CNPM_ADD_PACKAGE(
     NAME
         Qt
     VERSION
-        5.15.1
+        5.15.9
     BUILD_NUMBER
-        1
+        10
     TAG
-        "sdk18362_vsbt19"
+        "sdk20348_vsbt22"
 )
