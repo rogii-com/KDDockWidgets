@@ -79,7 +79,7 @@ file(
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}" -DCMAKE_INSTALL_PREFIX=${ROOT}/${PACKAGE_NAME} -DKDDockWidgets_STATIC=true -DKDDockWidgets_EXAMPLES=false -DCMAKE_BUILD_TYPE=Debug -G Ninja ${PROJECT_ROOT_PATH}
+        "${CMAKE_COMMAND}" -DCMAKE_INSTALL_PREFIX=${ROOT}/${PACKAGE_NAME} -DKDDockWidgets_QT6=true -DKDDockWidgets_STATIC=true -DKDDockWidgets_EXAMPLES=false -DCMAKE_BUILD_TYPE=Debug -G Ninja ${PROJECT_ROOT_PATH}
     WORKING_DIRECTORY
         "${DEBUG_PATH}"
 )
@@ -103,7 +103,7 @@ file(
 
 execute_process(
     COMMAND
-        "${CMAKE_COMMAND}" -DCMAKE_INSTALL_PREFIX=${ROOT}/${PACKAGE_NAME} -DKDDockWidgets_STATIC=true -DKDDockWidgets_EXAMPLES=false -DCMAKE_BUILD_TYPE=RelWithDebInfo -G Ninja ${PROJECT_ROOT_PATH}
+        "${CMAKE_COMMAND}" -DCMAKE_INSTALL_PREFIX=${ROOT}/${PACKAGE_NAME} -DKDDockWidgets_QT6=true -DKDDockWidgets_STATIC=true -DKDDockWidgets_EXAMPLES=false -DCMAKE_BUILD_TYPE=RelWithDebInfo -G Ninja ${PROJECT_ROOT_PATH}
     WORKING_DIRECTORY
         "${RELEASE_PATH}"
 )
