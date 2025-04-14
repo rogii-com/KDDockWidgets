@@ -17,16 +17,16 @@ if(MSVC)
             "KDDOCKWIDGETS_STATICLIB"
 
         INTERFACE_INCLUDE_DIRECTORIES
-            "${CMAKE_CURRENT_LIST_DIR}/include;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets"
+            "${CMAKE_CURRENT_LIST_DIR}/include;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets-qt6"
 
         INTERFACE_LINK_LIBRARIES
-            "Qt5::Widgets;\$<LINK_ONLY:Qt5::GuiPrivate>;\$<LINK_ONLY:Dwmapi>"
+            "Qt6::Widgets;\$<LINK_ONLY:Qt6::GuiPrivate>;\$<LINK_ONLY:Dwmapi>"
 
         IMPORTED_LOCATION_DEBUG
-            ${CMAKE_CURRENT_LIST_DIR}/lib/kddockwidgets1d.lib
+            ${CMAKE_CURRENT_LIST_DIR}/lib/kddockwidgets-qt61d.lib
 
         IMPORTED_LOCATION
-            ${CMAKE_CURRENT_LIST_DIR}/lib/kddockwidgets1.lib
+            ${CMAKE_CURRENT_LIST_DIR}/lib/kddockwidgets-qt61.lib
     )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set_target_properties(
@@ -34,11 +34,11 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         PROPERTIES
 
         INTERFACE_INCLUDE_DIRECTORIES
-            "${CMAKE_CURRENT_LIST_DIR}/include;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets"
+            "${CMAKE_CURRENT_LIST_DIR}/include;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets-qt6"
 
         IMPORTED_LOCATION_DEBUG
-            ${CMAKE_CURRENT_LIST_DIR}/lib/libkddockwidgetsd.a
+            ${CMAKE_CURRENT_LIST_DIR}/lib/libkddockwidgets-qt6d.a
         IMPORTED_LOCATION
-            ${CMAKE_CURRENT_LIST_DIR}/lib/libkddockwidgets.a
+            ${CMAKE_CURRENT_LIST_DIR}/lib/libkddockwidgets-qt6.a
     )
 endif()
