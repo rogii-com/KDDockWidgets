@@ -17,7 +17,7 @@ if(MSVC)
             "KDDOCKWIDGETS_STATICLIB"
 
         INTERFACE_INCLUDE_DIRECTORIES
-            "${CMAKE_CURRENT_LIST_DIR}/include;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets-qt6"
+            "${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets-qt6;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets-qt6/kddockwidgets"
 
         INTERFACE_LINK_LIBRARIES
             "Qt6::Widgets;\$<LINK_ONLY:Qt6::GuiPrivate>;\$<LINK_ONLY:Dwmapi>"
@@ -34,7 +34,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         PROPERTIES
 
         INTERFACE_INCLUDE_DIRECTORIES
-            "${CMAKE_CURRENT_LIST_DIR}/include;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets-qt6"
+            "${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets-qt6;${CMAKE_CURRENT_LIST_DIR}/include/kddockwidgets-qt6/kddockwidgets"
 
         IMPORTED_LOCATION_DEBUG
             ${CMAKE_CURRENT_LIST_DIR}/lib/libkddockwidgets-qt6d.a
