@@ -7,7 +7,7 @@ CNPM_ADD_PACKAGE(
     VERSION
         6.8.1
     BUILD_NUMBER
-        34
+        35
     TAG
         "sdk22621_vsbt22"
 )
