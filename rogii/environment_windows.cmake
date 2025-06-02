@@ -5,9 +5,9 @@ CNPM_ADD_PACKAGE(
     NAME
         Qt
     VERSION
-        6.8.1
+        6.8.3
     BUILD_NUMBER
-        37
+        43
     TAG
         "sdk22621_vsbt22"
 )
