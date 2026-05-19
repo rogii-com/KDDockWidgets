@@ -10,9 +10,9 @@ CNPM_ADD_PACKAGE(
     NAME
         Qt
     VERSION
-        6.8.3
+        6.11.1
     BUILD_NUMBER
-        1513
+        1840
     TAG
         "gxx14.2.0"
 )
