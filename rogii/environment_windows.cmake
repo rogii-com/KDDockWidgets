@@ -7,7 +7,7 @@ CNPM_ADD_PACKAGE(
     VERSION
         6.11.1
     BUILD_NUMBER
-        57
+        62
     TAG
-        "sdk22621_vsbt22"
+        "sdk26100_vsbt18"
 )
