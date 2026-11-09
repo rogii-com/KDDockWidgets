@@ -12,7 +12,7 @@ CNPM_ADD_PACKAGE(
     VERSION
         6.12.0
     BUILD_NUMBER
-        14232049
+        14630888
     TAG
         "gxx14.2.0"
 )
