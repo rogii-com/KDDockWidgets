@@ -5,9 +5,9 @@ CNPM_ADD_PACKAGE(
     NAME
         Qt
     VERSION
-        6.11.1
+        6.12.0
     BUILD_NUMBER
-        66
+        14630889
     TAG
         "sdk26100_vsbt18"
 )
